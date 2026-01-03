@@ -45,7 +45,6 @@ export default function HomePage() {
   const [checking, setChecking] = useState("");
   const [savings, setSavings] = useState("");
   const [creditCard, setCreditCard] = useState("");
-  const [notes, setNotes] = useState("");
 
   async function load() {
     setLoading(true);
@@ -87,7 +86,6 @@ export default function HomePage() {
       checking_cents: dollarsToCents(checking),
       savings_cents: dollarsToCents(savings),
       credit_card_cents: dollarsToCents(creditCard),
-      notes: notes || null,
     });
 
     if (error) setError(error.message);
@@ -95,7 +93,6 @@ export default function HomePage() {
     setChecking("");
     setSavings("");
     setCreditCard("");
-    setNotes("");
     setSaving(false);
     load();
   }
@@ -147,12 +144,6 @@ export default function HomePage() {
             inputMode="decimal"
             value={creditCard}
             onChange={(e) => setCreditCard(e.target.value)}
-          />
-          <input
-            placeholder="Notes (optional)"
-            className="w-full rounded border p-2"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
           />
           <button
             className="w-full rounded bg-black p-2 text-white"
