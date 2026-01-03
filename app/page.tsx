@@ -13,6 +13,8 @@ import {
   Legend,
 } from "recharts";
 
+export const dynamic = 'force-dynamic';
+
 type SnapshotRow = {
   id: string;
   week_of: string;
