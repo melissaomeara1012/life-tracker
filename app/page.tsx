@@ -162,10 +162,10 @@ export default function HomePage() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="checking" />
-              <Line type="monotone" dataKey="savings" />
-              <Line type="monotone" dataKey="creditCard" />
-              <Line type="monotone" dataKey="netWorth" />
+              <Line type="monotone" dataKey="checking" stroke="blue" />
+              <Line type="monotone" dataKey="savings" stroke="green" />
+              <Line type="monotone" dataKey="creditCard" stroke="red" />
+              <Line type="monotone" dataKey="netWorth" stroke="black" strokeWidth={3} />
             </LineChart>
           </ResponsiveContainer>
         </div>
