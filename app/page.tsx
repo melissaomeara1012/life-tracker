@@ -107,7 +107,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-md p-4">
-        <h1 className="text-2xl font-bold">Weekly Money Tracker</h1>
+        <h1 className="text-2xl font-bold">Weekly Finance Tracker</h1>
 
         {error && (
           <div className="mt-3 rounded bg-red-100 p-2 text-sm text-red-700">
