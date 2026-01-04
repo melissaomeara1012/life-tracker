@@ -115,7 +115,8 @@ export default function HomePage() {
 
         <form
           onSubmit={upsertSnapshot}
-          className="mt-4 space-y-3 rounded bg-white p-4 shadow"
+          className="mt-4 space-y-3 rounded p-4 shadow"
+          style={{ backgroundColor: '#FFDDD3' }}
         >
           <input
             type="date"
@@ -146,7 +147,7 @@ export default function HomePage() {
           </button>
         </form>
 
-        <div className="mt-6 h-64 rounded bg-white p-3 shadow">
+        <div className="mt-6 h-64 rounded p-3 shadow" style={{ backgroundColor: '#FFDDD3' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -168,7 +169,8 @@ export default function HomePage() {
             .map((r) => (
               <div
                 key={r.id}
-                className="rounded border bg-white p-2 flex justify-between"
+                className="rounded border p-2 flex justify-between"
+                style={{ backgroundColor: '#FFDDD3' }}
               >
                 <div>
                   <div className="font-medium">{r.week_of}</div>
