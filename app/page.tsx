@@ -105,7 +105,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen">
       <div className="mx-auto max-w-md p-4">
-        <h1 className="text-2xl font-bold">Weekly Finance Tracker</h1>
+        <h1 className="text-2xl font-bold text-center">Weekly Finance Tracker</h1>
 
         {error && (
           <div className="mt-3 rounded bg-red-100 p-2 text-sm text-red-700">
@@ -118,13 +118,15 @@ export default function HomePage() {
           className="mt-4 space-y-3 rounded p-4 shadow"
           style={{ backgroundColor: '#fcf9f2' }}
         >
-          <input
-            type="date"
-            className="w-full rounded border p-2"
-            style={{ maxWidth: '100%', boxSizing: 'border-box' }}
-            value={weekOf}
-            onChange={(e) => setWeekOf(e.target.value)}
-          />
+          <div className="w-full">
+            <input
+              type="date"
+              className="rounded border p-2"
+              style={{ width: '100%', display: 'block', boxSizing: 'border-box' }}
+              value={weekOf}
+              onChange={(e) => setWeekOf(e.target.value)}
+            />
+          </div>
           <input
             placeholder="Monthly Expenses"
             className="w-full rounded border p-2"
