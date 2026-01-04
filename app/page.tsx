@@ -39,11 +39,13 @@ export default function HomePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [weekOf, setWeekOf] = useState(() =>
-    new Date().toISOString().slice(0, 10)
-  );
+  const [weekOf, setWeekOf] = useState("");
   const [savings, setSavings] = useState("");
   const [creditCard, setCreditCard] = useState("");
+
+  useEffect(() => {
+    setWeekOf(new Date().toISOString().slice(0, 10));
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -58,6 +60,7 @@ export default function HomePage() {
   }
 
   useEffect(() => {
+    setWeekOf(new Date().toISOString().slice(0, 10));
     load();
   }, []);
 
