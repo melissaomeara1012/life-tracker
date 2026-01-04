@@ -121,6 +121,7 @@ export default function HomePage() {
           <input
             type="date"
             className="w-full rounded border p-2"
+            style={{ maxWidth: '100%', boxSizing: 'border-box' }}
             value={weekOf}
             onChange={(e) => setWeekOf(e.target.value)}
           />
