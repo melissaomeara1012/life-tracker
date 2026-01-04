@@ -102,7 +102,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen">
       <div className="mx-auto max-w-md p-4">
-        <h1 className="text-2xl font-bold">Weekly Finance Tracker</h1>
+        <h1 className="text-2xl font-bold text-center">Weekly Finance Tracker</h1>
 
         {error && (
           <div className="mt-3 rounded bg-red-100 p-2 text-sm text-red-700">
@@ -136,7 +136,8 @@ export default function HomePage() {
             onChange={(e) => setCreditCard(e.target.value)}
           />
           <button
-            className="w-full rounded bg-black p-2 text-white"
+            className="w-full rounded p-2"
+            style={{ backgroundColor: '#036651', color: '#fcf9f2' }}
             type="submit"
             disabled={saving}
           >
