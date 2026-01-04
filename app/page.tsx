@@ -100,7 +100,7 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen">
       <div className="mx-auto max-w-md p-4">
         <h1 className="text-2xl font-bold">Weekly Finance Tracker</h1>
 
