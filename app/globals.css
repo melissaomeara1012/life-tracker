@@ -25,4 +25,5 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'Quicksand', Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
 }

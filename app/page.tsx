@@ -142,7 +142,8 @@ export default function HomePage() {
             onChange={(e) => setCreditCard(e.target.value)}
           />
           <button
-            className="w-full rounded bg-black p-2 text-white"
+            className="w-full rounded p-2"
+            style={{ backgroundColor: '#036651', color: '#fcf9f2' }}
             type="submit"
             disabled={saving}
           >
