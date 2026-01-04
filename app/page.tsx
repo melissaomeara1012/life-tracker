@@ -42,7 +42,6 @@ export default function HomePage() {
   const [weekOf, setWeekOf] = useState(() =>
     new Date().toISOString().slice(0, 10)
   );
-  const [checking, setChecking] = useState("");
   const [savings, setSavings] = useState("");
   const [creditCard, setCreditCard] = useState("");
 
@@ -64,11 +63,9 @@ export default function HomePage() {
 
   const chartData = useMemo(() => {
     return rows.map((r) => {
-      const cash = r.checking_cents + r.savings_cents;
-      const netWorth = cash - r.credit_card_cents;
+      const netWorth = r.savings_cents - r.credit_card_cents;
       return {
         week: r.week_of,
-        checking: Number(centsToDollars(r.checking_cents)),
         savings: Number(centsToDollars(r.savings_cents)),
         creditCard: Number(centsToDollars(r.credit_card_cents)),
         netWorth: Number(centsToDollars(netWorth)),
@@ -83,14 +80,13 @@ export default function HomePage() {
 
     const { error } = await supabase.from("snapshots").upsert({
       week_of: weekOf,
-      checking_cents: dollarsToCents(checking),
+      checking_cents: 0,
       savings_cents: dollarsToCents(savings),
       credit_card_cents: dollarsToCents(creditCard),
     });
 
     if (error) setError(error.message);
 
-    setChecking("");
     setSavings("");
     setCreditCard("");
     setSaving(false);
@@ -125,14 +121,7 @@ export default function HomePage() {
             onChange={(e) => setWeekOf(e.target.value)}
           />
           <input
-            placeholder="Checking"
-            className="w-full rounded border p-2"
-            inputMode="decimal"
-            value={checking}
-            onChange={(e) => setChecking(e.target.value)}
-          />
-          <input
-            placeholder="Savings"
+            placeholder="Monthly Expenses"
             className="w-full rounded border p-2"
             inputMode="decimal"
             value={savings}
@@ -162,7 +151,6 @@ export default function HomePage() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="checking" stroke="blue" />
               <Line type="monotone" dataKey="savings" stroke="green" />
               <Line type="monotone" dataKey="creditCard" stroke="red" />
               <Line type="monotone" dataKey="netWorth" stroke="black" strokeWidth={3} />
@@ -184,9 +172,7 @@ export default function HomePage() {
                   <div className="text-sm">
                     Net: $
                     {(
-                      (r.checking_cents +
-                        r.savings_cents -
-                        r.credit_card_cents) /
+                      (r.savings_cents - r.credit_card_cents) /
                       100
                     ).toFixed(2)}
                   </div>
