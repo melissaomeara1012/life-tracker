@@ -121,7 +121,7 @@ export default function HomePage() {
             onChange={(e) => setWeekOf(e.target.value)}
           />
           <input
-            placeholder="Mo they Expenses"
+            placeholder="Monthly Expenses"
             className="w-full rounded border p-2"
             inputMode="decimal"
             value={savings}
