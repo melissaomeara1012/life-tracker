@@ -118,11 +118,10 @@ export default function HomePage() {
           className="mt-4 space-y-3 rounded p-4 shadow"
           style={{ backgroundColor: '#fcf9f2' }}
         >
-          <div className="w-full">
+          <div style={{ overflow: 'hidden' }}>
             <input
               type="date"
-              className="rounded border p-2"
-              style={{ width: '100%', display: 'block', boxSizing: 'border-box' }}
+              className="w-full rounded border p-2"
               value={weekOf}
               onChange={(e) => setWeekOf(e.target.value)}
             />
