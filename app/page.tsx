@@ -127,7 +127,7 @@ export default function HomePage() {
             />
           </div>
           <input
-            placeholder="Monthly Expenses"
+            placeholder="Savings Accounts"
             className="w-full rounded border p-2"
             inputMode="decimal"
             value={savings}
