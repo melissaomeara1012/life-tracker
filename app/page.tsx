@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 import {
   LineChart,
   Line,
@@ -105,6 +106,16 @@ export default function HomePage() {
   return (
     <main className="min-h-screen relative py-8 px-4">
       <div className="mx-auto max-w-2xl">
+        {/* Navigation */}
+        <div className="mb-6 flex justify-end">
+          <Link
+            href="/chores"
+            className="inline-flex items-center gap-2 text-violet-400 hover:text-violet-300 font-medium text-sm glass px-4 py-2 rounded-xl hover:bg-white/10"
+          >
+            🧹 Chores Tracker →
+          </Link>
+        </div>
+
         {/* Header with gradient text */}
         <div className="text-center mb-8">
           <h1 className="text-5xl font-black bg-gradient-to-r from-violet-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-2">
