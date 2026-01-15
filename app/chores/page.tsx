@@ -97,6 +97,31 @@ export default function ChoresPage() {
     return completion?.completed_at;
   };
 
+  // Calculate Top 5 Priority chores (never cleaned or cleaned longest ago)
+  const getTopPriorities = () => {
+    const allCombinations = AREAS.flatMap((area) =>
+      TASKS.map((task) => ({ area, task }))
+    );
+
+    const withLastCleaned = allCombinations.map((combo) => {
+      const lastCleaned = getLastCleaned(combo.area, combo.task);
+      return {
+        ...combo,
+        lastCleaned,
+        daysAgo: lastCleaned
+          ? Math.floor((new Date().getTime() - new Date(lastCleaned).getTime()) / (1000 * 60 * 60 * 24))
+          : Infinity,
+      };
+    });
+
+    // Sort by days ago (descending), with never-cleaned first
+    return withLastCleaned
+      .sort((a, b) => b.daysAgo - a.daysAgo)
+      .slice(0, 5);
+  };
+
+  const topPriorities = getTopPriorities();
+
   return (
     <main className="min-h-screen relative py-8 px-4">
       <div className="mx-auto max-w-4xl">
@@ -125,6 +150,56 @@ export default function ChoresPage() {
             <p className="text-red-300 text-sm font-medium">⚠️ {error}</p>
           </div>
         )}
+
+        {/* Top 5 Priority List */}
+        <div className="glass-strong rounded-3xl p-6 shadow-2xl shadow-red-500/20 mb-6 border-2 border-red-500/30">
+          <h2 className="text-xl font-bold text-white/90 mb-4 flex items-center gap-2">
+            <span className="text-2xl">🔥</span>
+            Top 5 Priority Chores
+          </h2>
+          <div className="space-y-3">
+            {topPriorities.map((priority, index) => (
+              <div
+                key={`${priority.area}-${priority.task}`}
+                className="glass rounded-2xl p-4 hover:bg-white/10 hover:scale-[1.02] border border-red-500/20"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center font-bold text-white">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-bold text-white/90 text-lg">
+                      {priority.area} - {priority.task}
+                    </div>
+                    <div className="text-red-400 text-sm font-medium">
+                      {priority.lastCleaned ? (
+                        <>
+                          {priority.daysAgo === 0
+                            ? "Last cleaned today"
+                            : priority.daysAgo === 1
+                            ? "Last cleaned yesterday"
+                            : `Last cleaned ${priority.daysAgo} days ago`}
+                        </>
+                      ) : (
+                        "Never cleaned"
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedArea(priority.area);
+                      setSelectedTask(priority.task);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white text-sm font-semibold shadow-lg hover:scale-105"
+                  >
+                    Clean Now
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Mark Complete Form */}
         <form
