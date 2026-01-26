@@ -5,6 +5,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 A modern, beautiful web app for tracking your life's important metrics:
 - 💰 **Finance Tracker**: Track weekly savings, credit cards, and net worth
 - 🧹 **Chores Tracker**: Keep your home organized with a household chores tracking system
+- 💵 **Loan Tracker**: Monitor loan payments with amortization schedule and progress tracking
 
 Built with Next.js, TypeScript, Tailwind CSS, and Supabase.
 
@@ -22,6 +23,14 @@ Built with Next.js, TypeScript, Tailwind CSS, and Supabase.
 - Color-coded status indicators (green = recent, yellow = due soon, red = overdue)
 - Complete history of all cleaning activities
 
+### Loan Tracker
+- Monitor O'Meara loan ($22,000 at 5% APR, bi-weekly payments)
+- Summary dashboard with remaining balance, interest paid, and payoff estimate
+- Interactive payment checklist for upcoming scheduled payments
+- Detailed payment history with interest/principal breakdown
+- Visual charts showing balance over time and cumulative interest
+- Automatic amortization schedule calculation
+
 ## Database Setup
 
 ### Setting up Supabase
@@ -36,13 +45,15 @@ Built with Next.js, TypeScript, Tailwind CSS, and Supabase.
 
 ### Running Database Migrations
 
-To enable the Chores Tracker feature, run the SQL migration:
+To enable all features, run the SQL migrations:
 
 1. Go to your Supabase project dashboard
 2. Navigate to the SQL Editor
-3. Open and run `supabase_migrations/create_chore_completions.sql`
+3. Run the following migrations in order:
+   - `supabase_migrations/create_chore_completions.sql` - For Chores Tracker
+   - `supabase_migrations/create_loan_payments.sql` - For Loan Tracker
 
-This will create the necessary `chore_completions` table with proper indexes and security policies.
+This will create the necessary tables with proper indexes and security policies.
 
 ## Getting Started
 
