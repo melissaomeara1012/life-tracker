@@ -24,6 +24,7 @@ type LoanPayment = {
   interest_portion: number;
   remaining_balance: number;
   status: string;
+  notes?: string;
 };
 
 type ScheduledPayment = {
@@ -80,6 +81,7 @@ export default function LoanPage() {
   // Extra payment form state
   const [extraAmount, setExtraAmount] = useState("");
   const [extraDate, setExtraDate] = useState("");
+  const [extraNotes, setExtraNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
   async function loadPayments() {
@@ -196,6 +198,7 @@ export default function LoanPage() {
       interest_portion: interest,
       remaining_balance: newBalance,
       status: "cleared",
+      notes: extraNotes.trim() || null,
     });
 
     if (error) {
@@ -207,6 +210,7 @@ export default function LoanPage() {
 
     setExtraAmount("");
     setExtraDate("");
+    setExtraNotes("");
     setSaving(false);
     loadPayments();
   }
@@ -308,39 +312,53 @@ export default function LoanPage() {
             <span className="text-2xl">💵</span>
             Make Extra Payment
           </h2>
-          <form onSubmit={makeExtraPayment} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-white/60 text-sm font-medium mb-2 block">
-                Payment Amount
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="$0.00"
-                className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/50 focus:bg-white/15 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
-                value={extraAmount}
-                onChange={(e) => setExtraAmount(e.target.value)}
-              />
+          <form onSubmit={makeExtraPayment} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-white/60 text-sm font-medium mb-2 block">
+                  Payment Amount
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="$0.00"
+                  className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/50 focus:bg-white/15 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
+                  value={extraAmount}
+                  onChange={(e) => setExtraAmount(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-white/60 text-sm font-medium mb-2 block">
+                  Payment Date
+                </label>
+                <input
+                  type="date"
+                  className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/50 focus:bg-white/15 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
+                  value={extraDate}
+                  onChange={(e) => setExtraDate(e.target.value)}
+                />
+              </div>
+              <div className="flex items-end">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-bold rounded-2xl px-6 py-3 shadow-lg shadow-emerald-500/50 hover:shadow-emerald-500/70 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? "💰 Processing..." : "💰 Add Payment"}
+                </button>
+              </div>
             </div>
             <div>
               <label className="text-white/60 text-sm font-medium mb-2 block">
-                Payment Date
+                Notes (optional)
               </label>
-              <input
-                type="date"
-                className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/50 focus:bg-white/15 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
-                value={extraDate}
-                onChange={(e) => setExtraDate(e.target.value)}
+              <textarea
+                placeholder="e.g., Tax refund, bonus payment, birthday gift..."
+                className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/50 focus:bg-white/15 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30 resize-none"
+                rows={2}
+                value={extraNotes}
+                onChange={(e) => setExtraNotes(e.target.value)}
               />
-            </div>
-            <div className="flex items-end">
-              <button
-                type="submit"
-                disabled={saving}
-                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-bold rounded-2xl px-6 py-3 shadow-lg shadow-emerald-500/50 hover:shadow-emerald-500/70 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {saving ? "💰 Processing..." : "💰 Add Payment"}
-              </button>
             </div>
           </form>
           <p className="text-white/50 text-xs mt-3">
@@ -410,6 +428,7 @@ export default function LoanPage() {
                   <th className="text-right text-white/60 text-sm font-medium pb-3">Interest</th>
                   <th className="text-right text-white/60 text-sm font-medium pb-3">Principal</th>
                   <th className="text-right text-white/60 text-sm font-medium pb-3">Balance</th>
+                  <th className="text-left text-white/60 text-sm font-medium pb-3">Notes</th>
                   <th className="text-right text-white/60 text-sm font-medium pb-3">Actions</th>
                 </tr>
               </thead>
@@ -431,6 +450,9 @@ export default function LoanPage() {
                     <td className="py-3 text-right text-violet-400 font-bold">
                       ${payment.remaining_balance.toFixed(2)}
                     </td>
+                    <td className="py-3 text-left text-white/70 text-sm max-w-[200px] truncate" title={payment.notes || undefined}>
+                      {payment.notes || "-"}
+                    </td>
                     <td className="py-3 text-right">
                       <button
                         onClick={() => deletePayment(payment.id)}
@@ -443,7 +465,7 @@ export default function LoanPage() {
                 ))}
                 {clearedPayments.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-white/50">
+                    <td colSpan={7} className="py-8 text-center text-white/50">
                       No payments recorded yet. Check off payments above to track progress!
                     </td>
                   </tr>
