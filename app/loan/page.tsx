@@ -77,6 +77,11 @@ export default function LoanPage() {
   const [clearedPayments, setClearedPayments] = useState<LoanPayment[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Extra payment form state
+  const [extraAmount, setExtraAmount] = useState("");
+  const [extraDate, setExtraDate] = useState("");
+  const [saving, setSaving] = useState(false);
+
   async function loadPayments() {
     setLoading(true);
     const { data, error } = await supabase
@@ -94,6 +99,7 @@ export default function LoanPage() {
 
   useEffect(() => {
     loadPayments();
+    setExtraDate(new Date().toISOString().slice(0, 10));
   }, []);
 
   // Calculate current state based on cleared payments
@@ -146,6 +152,62 @@ export default function LoanPage() {
       return;
     }
 
+    loadPayments();
+  }
+
+  async function makeExtraPayment(e: React.FormEvent) {
+    e.preventDefault();
+    if (!extraAmount || !extraDate) {
+      alert("Please enter both amount and date");
+      return;
+    }
+
+    const amount = parseFloat(extraAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    setSaving(true);
+
+    // Calculate balance at the time of extra payment
+    const paymentDate = new Date(extraDate);
+    let balance = remainingBalance;
+
+    // Calculate interest accrued since last payment
+    const lastPaymentDate = clearedPayments.length > 0
+      ? new Date(clearedPayments[clearedPayments.length - 1].payment_date)
+      : new Date(START_DATE.getTime() - 14 * 24 * 60 * 60 * 1000);
+
+    const daysSinceLastPayment = Math.floor(
+      (paymentDate.getTime() - lastPaymentDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    // Calculate interest for the period (daily rate)
+    const dailyRate = ANNUAL_RATE / 365;
+    const interest = balance * dailyRate * daysSinceLastPayment;
+    const principal = Math.min(amount - interest, balance);
+    const newBalance = Math.max(0, balance - principal);
+
+    const { error } = await supabase.from("loan_payments").insert({
+      payment_date: extraDate,
+      amount_paid: amount,
+      principal_portion: principal,
+      interest_portion: interest,
+      remaining_balance: newBalance,
+      status: "cleared",
+    });
+
+    if (error) {
+      console.error("Error adding extra payment:", error);
+      alert("Error adding extra payment");
+      setSaving(false);
+      return;
+    }
+
+    setExtraAmount("");
+    setExtraDate("");
+    setSaving(false);
     loadPayments();
   }
 
@@ -238,6 +300,52 @@ export default function LoanPage() {
               ${upcomingSchedule[0]?.amount.toFixed(2) ?? "0.00"}
             </div>
           </div>
+        </div>
+
+        {/* Extra Payment Form */}
+        <div className="glass-strong rounded-3xl p-6 shadow-2xl shadow-emerald-500/10 mb-6 border-2 border-emerald-500/30">
+          <h2 className="text-2xl font-bold text-white/90 mb-4 flex items-center gap-2">
+            <span className="text-2xl">💵</span>
+            Make Extra Payment
+          </h2>
+          <form onSubmit={makeExtraPayment} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-white/60 text-sm font-medium mb-2 block">
+                Payment Amount
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="$0.00"
+                className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/50 focus:bg-white/15 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
+                value={extraAmount}
+                onChange={(e) => setExtraAmount(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-white/60 text-sm font-medium mb-2 block">
+                Payment Date
+              </label>
+              <input
+                type="date"
+                className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-white placeholder-white/50 focus:bg-white/15 focus:border-emerald-400/50 focus:outline-none focus:ring-2 focus:ring-emerald-400/30"
+                value={extraDate}
+                onChange={(e) => setExtraDate(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end">
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-bold rounded-2xl px-6 py-3 shadow-lg shadow-emerald-500/50 hover:shadow-emerald-500/70 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? "💰 Processing..." : "💰 Add Payment"}
+              </button>
+            </div>
+          </form>
+          <p className="text-white/50 text-xs mt-3">
+            Extra payments reduce the principal and can significantly decrease total interest paid over the life of the loan.
+          </p>
         </div>
 
         {/* Upcoming Payments Checklist */}
