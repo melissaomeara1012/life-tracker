@@ -1,9 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Elsie+Swash+Caps:wght@400;900&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #0f0f23;
-  --foreground: #ffffff;
+  --background: #faf7f2;
+  --foreground: #0d4d3e;
+  --blush: #f4c2c2;
+  --emerald: #0d4d3e;
+  --cream: #faf7f2;
 }
 
 @theme inline {
@@ -16,13 +19,13 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Elsie Swash Caps', Georgia, serif;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
 }
 
-/* Modern gradient background with ambient orbs */
+/* Modern gradient background with ambient orbs - blush pink & emerald */
 body::before {
   content: '';
   position: fixed;
@@ -31,12 +34,12 @@ body::before {
   width: 100%;
   height: 100%;
   background:
-    radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 10% 90%, rgba(14, 165, 233, 0.25) 0%, transparent 50%);
-  background-color: #0f0f23;
+    radial-gradient(circle at 20% 20%, rgba(244, 194, 194, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(13, 77, 62, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(244, 194, 194, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 90% 10%, rgba(13, 77, 62, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 10% 90%, rgba(244, 194, 194, 0.35) 0%, transparent 50%);
+  background-color: #faf7f2;
   z-index: -1;
   animation: gradientShift 15s ease infinite;
 }
@@ -52,17 +55,19 @@ body::before {
 
 /* Glassmorphism utilities */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(244, 194, 194, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(244, 194, 194, 0.2);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(244, 194, 194, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(13, 77, 62, 0.15);
 }
 
 /* Smooth transitions */
