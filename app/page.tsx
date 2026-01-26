@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 import {
   LineChart,
   Line,
@@ -24,6 +25,17 @@ type SnapshotRow = {
   notes: string | null;
 };
 
+type ChoreCompletion = {
+  id: string;
+  area: string;
+  task: string;
+  completed_at: string;
+  notes: string | null;
+};
+
+const AREAS = ["Kitchen", "Dining", "Living", "Bathrooms", "Bedrooms"];
+const TASKS = ["Mop", "Vacuum", "Counters", "Baseboards", "Cabinets"];
+
 function dollarsToCents(v: string) {
   const n = Number(v);
   if (Number.isNaN(n)) return 0;
@@ -33,36 +45,53 @@ function centsToDollars(c: number) {
   return (c / 100).toFixed(2);
 }
 
-export default function HomePage() {
-  const [rows, setRows] = useState<SnapshotRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+function formatTimeAgo(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+  return `${Math.floor(diffDays / 365)} years ago`;
+}
+
+export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<"finance" | "chores">("finance");
+
+  // Finance state
+  const [rows, setRows] = useState<SnapshotRow[]>([]);
+  const [financeLoading, setFinanceLoading] = useState(true);
+  const [financeSaving, setFinanceSaving] = useState(false);
+  const [financeError, setFinanceError] = useState<string | null>(null);
   const [weekOf, setWeekOf] = useState("");
   const [savings, setSavings] = useState("");
   const [creditCard, setCreditCard] = useState("");
 
-  useEffect(() => {
-    setWeekOf(new Date().toISOString().slice(0, 10));
-  }, []);
+  // Chores state
+  const [completions, setCompletions] = useState<ChoreCompletion[]>([]);
+  const [choresLoading, setChoresLoading] = useState(true);
+  const [choresSaving, setChoresSaving] = useState(false);
+  const [choresError, setChoresError] = useState<string | null>(null);
+  const [selectedArea, setSelectedArea] = useState("");
+  const [selectedTask, setSelectedTask] = useState("");
+  const [notes, setNotes] = useState("");
 
-  async function load() {
-    setLoading(true);
+  // Finance functions
+  async function loadFinance() {
+    setFinanceLoading(true);
     const { data, error } = await supabase
       .from("snapshots")
       .select("*")
       .order("week_of", { ascending: true });
 
-    if (error) setError(error.message);
+    if (error) setFinanceError(error.message);
     setRows((data as SnapshotRow[]) ?? []);
-    setLoading(false);
+    setFinanceLoading(false);
   }
-
-  useEffect(() => {
-    setWeekOf(new Date().toISOString().slice(0, 10));
-    load();
-  }, []);
 
   const chartData = useMemo(() => {
     return rows.map((r) => {
@@ -78,8 +107,8 @@ export default function HomePage() {
 
   async function upsertSnapshot(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    setError(null);
+    setFinanceSaving(true);
+    setFinanceError(null);
 
     const { error } = await supabase.from("snapshots").upsert({
       week_of: weekOf,
@@ -88,24 +117,106 @@ export default function HomePage() {
       credit_card_cents: dollarsToCents(creditCard),
     });
 
-    if (error) setError(error.message);
+    if (error) setFinanceError(error.message);
 
     setSavings("");
     setCreditCard("");
-    setSaving(false);
-    load();
+    setFinanceSaving(false);
+    loadFinance();
   }
 
   async function deleteRow(id: string) {
     if (!confirm("Delete this entry?")) return;
     await supabase.from("snapshots").delete().eq("id", id);
-    load();
+    loadFinance();
   }
+
+  // Chores functions
+  async function loadChores() {
+    setChoresLoading(true);
+    const { data, error } = await supabase
+      .from("chore_completions")
+      .select("*")
+      .order("completed_at", { ascending: false });
+
+    if (error) setChoresError(error.message);
+    setCompletions((data as ChoreCompletion[]) ?? []);
+    setChoresLoading(false);
+  }
+
+  async function markComplete(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedArea || !selectedTask) {
+      setChoresError("Please select both area and task");
+      return;
+    }
+
+    setChoresSaving(true);
+    setChoresError(null);
+
+    const { error } = await supabase.from("chore_completions").insert({
+      area: selectedArea,
+      task: selectedTask,
+      completed_at: new Date().toISOString(),
+      notes: notes || null,
+    });
+
+    if (error) setChoresError(error.message);
+
+    setSelectedArea("");
+    setSelectedTask("");
+    setNotes("");
+    setChoresSaving(false);
+    loadChores();
+  }
+
+  async function deleteCompletion(id: string) {
+    if (!confirm("Delete this entry?")) return;
+    await supabase.from("chore_completions").delete().eq("id", id);
+    loadChores();
+  }
+
+  const getLastCleaned = (area: string, task: string) => {
+    const completion = completions.find(
+      (c) => c.area === area && c.task === task
+    );
+    return completion?.completed_at;
+  };
+
+  const getTopPriorities = () => {
+    const allCombinations = AREAS.flatMap((area) =>
+      TASKS.map((task) => ({ area, task }))
+    );
+
+    const withLastCleaned = allCombinations.map((combo) => {
+      const lastCleaned = getLastCleaned(combo.area, combo.task);
+      return {
+        ...combo,
+        lastCleaned,
+        daysAgo: lastCleaned
+          ? Math.floor((new Date().getTime() - new Date(lastCleaned).getTime()) / (1000 * 60 * 60 * 24))
+          : Infinity,
+      };
+    });
+
+    return withLastCleaned
+      .sort((a, b) => b.daysAgo - a.daysAgo)
+      .slice(0, 5);
+  };
+
+  const topPriorities = getTopPriorities();
+
+  // Initialize
+  useEffect(() => {
+    setWeekOf(new Date().toISOString().slice(0, 10));
+    loadFinance();
+    loadChores();
+  }, []);
 
   return (
     <main className="min-h-screen relative py-8 px-4">
-      <div className="mx-auto max-w-2xl">
-        {/* Header with gradient text */}
+      <div className="mx-auto max-w-4xl">
+        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-6xl font-black bg-gradient-to-r from-emerald-700 via-pink-400 to-emerald-600 bg-clip-text text-transparent mb-2">
             Weekly Finance Tracker
@@ -221,10 +332,6 @@ export default function HomePage() {
                   activeDot={{ r: 7, fill: '#0d4d3e' }}
                   name="Net Worth"
                 />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
         {/* Historical data */}
         <div className="space-y-3">
@@ -260,6 +367,12 @@ export default function HomePage() {
                         📈 Net: ${centsToDollars(r.savings_cents - r.credit_card_cents)}
                       </span>
                     </div>
+                    <button
+                      className="text-red-400 hover:text-red-300 text-sm font-medium px-4 py-2 rounded-xl hover:bg-red-500/20 opacity-0 group-hover:opacity-100"
+                      onClick={() => deleteCompletion(c.id)}
+                    >
+                      🗑️ Delete
+                    </button>
                   </div>
                   <button
                     className="text-rose-600 hover:text-rose-700 text-sm font-medium px-4 py-2 rounded-xl hover:bg-rose-100/60 opacity-0 group-hover:opacity-100"
@@ -274,8 +387,8 @@ export default function HomePage() {
             <div className="glass rounded-2xl p-8 text-center">
               <p className="text-emerald-700/70 text-lg">No entries yet. Start tracking your finances! 🚀</p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </main>
   );
