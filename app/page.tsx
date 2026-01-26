@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
 import {
   LineChart,
   Line,
@@ -221,7 +222,7 @@ export default function HomePage() {
             Life Tracker
           </h1>
           <p className="text-white/60 text-sm font-medium">
-            Track your finances and household chores with style
+            Track your finances, household chores, and loans with style
           </p>
         </div>
 
@@ -235,7 +236,7 @@ export default function HomePage() {
                 : "text-white/60 hover:text-white/90 hover:bg-white/5"
             }`}
           >
-            💰 Finance Tracker
+            💰 Finance
           </button>
           <button
             onClick={() => setActiveTab("chores")}
@@ -245,8 +246,14 @@ export default function HomePage() {
                 : "text-white/60 hover:text-white/90 hover:bg-white/5"
             }`}
           >
-            🧹 Chores Tracker
+            🧹 Chores
           </button>
+          <Link
+            href="/loan"
+            className="flex-1 px-6 py-3 rounded-2xl font-bold transition-all text-white/60 hover:text-white/90 hover:bg-white/5 text-center"
+          >
+            💵 Loan
+          </Link>
         </div>
 
         {/* Finance Tracker Content */}
