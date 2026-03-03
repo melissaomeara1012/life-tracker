@@ -216,179 +216,255 @@ export default function HomePage() {
   return (
     <main className="min-h-screen relative py-8 px-4">
       <div className="mx-auto max-w-4xl">
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-6xl font-black bg-gradient-to-r from-emerald-700 via-pink-400 to-emerald-600 bg-clip-text text-transparent mb-2">
-            Weekly Finance Tracker
+            Life Tracker
           </h1>
           <p className="text-emerald-800/70 text-base font-medium">
-            Track your financial journey with elegance
+            Track your journey with elegance
           </p>
         </div>
 
-        {error && (
-          <div className="mb-4 glass rounded-2xl p-4 border-rose-400/50 animate-pulse">
-            <p className="text-rose-700 text-sm font-medium">⚠️ {error}</p>
+        {/* Tab switcher */}
+        <div className="glass-strong rounded-2xl p-1 flex mb-6 shadow-md shadow-pink-200/30">
+          <button
+            onClick={() => setActiveTab("finance")}
+            className={`flex-1 rounded-xl py-2.5 font-bold transition-all ${
+              activeTab === "finance"
+                ? "bg-gradient-to-r from-emerald-700 to-pink-400 text-white shadow-md"
+                : "text-emerald-800/70 hover:text-emerald-800"
+            }`}
+          >
+            💰 Finance
+          </button>
+          <button
+            onClick={() => setActiveTab("chores")}
+            className={`flex-1 rounded-xl py-2.5 font-bold transition-all ${
+              activeTab === "chores"
+                ? "bg-gradient-to-r from-emerald-700 to-pink-400 text-white shadow-md"
+                : "text-emerald-800/70 hover:text-emerald-800"
+            }`}
+          >
+            🧹 Chores
+          </button>
+        </div>
+
+        {/* ── FINANCE TAB ── */}
+        {activeTab === "finance" && (
+          <div className="space-y-6">
+            {financeError && (
+              <div className="glass rounded-2xl p-4 border-rose-400/50">
+                <p className="text-rose-700 text-sm font-medium">⚠️ {financeError}</p>
+              </div>
+            )}
+
+            {/* Finance form */}
+            <form
+              onSubmit={upsertSnapshot}
+              className="glass-strong rounded-3xl p-6 shadow-2xl shadow-pink-300/30 hover:shadow-pink-300/40 hover:scale-[1.01]"
+            >
+              <div className="space-y-4">
+                <div className="overflow-hidden rounded-2xl">
+                  <input
+                    type="date"
+                    className="w-full bg-white/50 border-2 border-emerald-700/30 rounded-2xl px-4 py-3 text-emerald-900 focus:bg-white/70 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                    value={weekOf}
+                    onChange={(e) => setWeekOf(e.target.value)}
+                  />
+                </div>
+                <input
+                  placeholder="💰 Savings Accounts"
+                  className="w-full bg-white/50 border-2 border-emerald-700/30 rounded-2xl px-4 py-3 text-emerald-900 placeholder-emerald-700/50 focus:bg-white/70 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                  inputMode="decimal"
+                  value={savings}
+                  onChange={(e) => setSavings(e.target.value)}
+                />
+                <input
+                  placeholder="💳 Credit Card Balance"
+                  className="w-full bg-white/50 border-2 border-pink-300/50 rounded-2xl px-4 py-3 text-emerald-900 placeholder-emerald-700/50 focus:bg-white/70 focus:border-pink-400/60 focus:outline-none focus:ring-2 focus:ring-pink-400/40"
+                  inputMode="decimal"
+                  value={creditCard}
+                  onChange={(e) => setCreditCard(e.target.value)}
+                />
+                <button
+                  className="w-full bg-gradient-to-r from-emerald-700 to-pink-400 hover:from-emerald-800 hover:to-pink-500 text-white font-bold rounded-2xl px-6 py-3 shadow-lg shadow-emerald-700/40 hover:shadow-emerald-700/60 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  type="submit"
+                  disabled={financeSaving}
+                >
+                  {financeSaving ? "✨ Saving…" : "✨ Save Week"}
+                </button>
+              </div>
+            </form>
+
+            {/* Chart */}
+            <div className="glass-strong rounded-3xl p-6 shadow-2xl shadow-emerald-700/20 hover:shadow-emerald-700/30">
+              <h2 className="text-2xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                <span>📊</span> Financial Overview
+              </h2>
+              <div className="h-80 bg-white/30 rounded-2xl p-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,77,62,0.2)" />
+                    <XAxis dataKey="week" stroke="rgba(13,77,62,0.7)" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="rgba(13,77,62,0.7)" style={{ fontSize: '12px' }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(250,247,242,0.95)',
+                        border: '2px solid rgba(244,194,194,0.5)',
+                        borderRadius: '12px',
+                        backdropFilter: 'blur(10px)',
+                      }}
+                      labelStyle={{ color: '#0d4d3e', fontWeight: 'bold' }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} iconType="circle" />
+                    <Line type="monotone" dataKey="savings" stroke="#0d4d3e" strokeWidth={2} dot={{ fill: '#0d4d3e', r: 4 }} activeDot={{ r: 6, fill: '#166f59' }} name="Savings" />
+                    <Line type="monotone" dataKey="creditCard" stroke="#f4c2c2" strokeWidth={2} dot={{ fill: '#f4c2c2', r: 4 }} activeDot={{ r: 6, fill: '#f8a0a0' }} name="Credit Card" />
+                    <Line type="monotone" dataKey="netWorth" stroke="#166f59" strokeWidth={3} dot={{ fill: '#166f59', r: 5 }} activeDot={{ r: 7, fill: '#0d4d3e' }} name="Net Worth" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Finance history */}
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold text-emerald-800 mb-2 flex items-center gap-2">
+                <span>📅</span> History
+              </h2>
+              {rows.slice().reverse().map((r) => (
+                <div key={r.id} className="glass rounded-2xl p-4 hover:bg-white/80 hover:scale-[1.01] group">
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
+                      <div className="font-semibold text-emerald-900 text-lg mb-1">
+                        {new Date(r.week_of).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
+                      <div className="flex gap-4 text-sm flex-wrap">
+                        <span className="text-emerald-700 font-medium">💰 ${centsToDollars(r.savings_cents)}</span>
+                        <span className="text-pink-600 font-medium">💳 ${centsToDollars(r.credit_card_cents)}</span>
+                        <span className="text-emerald-800 font-bold">📈 Net: ${centsToDollars(r.savings_cents - r.credit_card_cents)}</span>
+                      </div>
+                    </div>
+                    <button
+                      className="text-rose-600 hover:text-rose-700 text-sm font-medium px-4 py-2 rounded-xl hover:bg-rose-100/60 opacity-0 group-hover:opacity-100"
+                      onClick={() => deleteRow(r.id)}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {rows.length === 0 && !financeLoading && (
+                <div className="glass rounded-2xl p-8 text-center">
+                  <p className="text-emerald-700/70 text-lg">No entries yet. Start tracking your finances! 🚀</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Main form - glassmorphic card */}
-        <form
-          onSubmit={upsertSnapshot}
-          className="glass-strong rounded-3xl p-6 shadow-2xl shadow-pink-300/30 mb-6 hover:shadow-pink-300/40 hover:scale-[1.01]"
-        >
-          <div className="space-y-4">
-            <div className="overflow-hidden rounded-2xl">
-              <input
-                type="date"
-                className="w-full bg-white/50 border-2 border-emerald-700/30 rounded-2xl px-4 py-3 text-emerald-900 placeholder-emerald-700/50 focus:bg-white/70 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-                value={weekOf}
-                onChange={(e) => setWeekOf(e.target.value)}
-              />
+        {/* ── CHORES TAB ── */}
+        {activeTab === "chores" && (
+          <div className="space-y-6">
+            {choresError && (
+              <div className="glass rounded-2xl p-4 border-rose-400/50">
+                <p className="text-rose-700 text-sm font-medium">⚠️ {choresError}</p>
+              </div>
+            )}
+
+            {/* Top priorities */}
+            <div className="glass-strong rounded-3xl p-6 shadow-2xl shadow-pink-300/30">
+              <h2 className="text-2xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                <span>🔥</span> Top Priorities
+              </h2>
+              <div className="space-y-2">
+                {topPriorities.map(({ area, task, lastCleaned, daysAgo }) => (
+                  <div key={`${area}-${task}`} className="flex justify-between items-center py-2 border-b border-emerald-700/10 last:border-0">
+                    <span className="text-emerald-900 font-medium">{area} — {task}</span>
+                    <span className={`text-sm font-medium ${daysAgo === Infinity ? 'text-rose-600' : daysAgo > 14 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                      {lastCleaned ? formatTimeAgo(lastCleaned) : "Never"}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <input
-              placeholder="💰 Savings Accounts"
-              className="w-full bg-white/50 border-2 border-emerald-700/30 rounded-2xl px-4 py-3 text-emerald-900 placeholder-emerald-700/50 focus:bg-white/70 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
-              inputMode="decimal"
-              value={savings}
-              onChange={(e) => setSavings(e.target.value)}
-            />
-
-            <input
-              placeholder="💳 Credit Card Balance"
-              className="w-full bg-white/50 border-2 border-pink-300/50 rounded-2xl px-4 py-3 text-emerald-900 placeholder-emerald-700/50 focus:bg-white/70 focus:border-pink-400/60 focus:outline-none focus:ring-2 focus:ring-pink-400/40"
-              inputMode="decimal"
-              value={creditCard}
-              onChange={(e) => setCreditCard(e.target.value)}
-            />
-
-            <button
-              className="w-full bg-gradient-to-r from-emerald-700 to-pink-400 hover:from-emerald-800 hover:to-pink-500 text-white font-bold rounded-2xl px-6 py-3 shadow-lg shadow-emerald-700/40 hover:shadow-emerald-700/60 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              type="submit"
-              disabled={saving}
+            {/* Chore log form */}
+            <form
+              onSubmit={markComplete}
+              className="glass-strong rounded-3xl p-6 shadow-2xl shadow-pink-300/30 hover:shadow-pink-300/40 hover:scale-[1.01]"
             >
-              {saving ? "✨ Saving…" : "✨ Save Week"}
-            </button>
-          </div>
-        </form>
+              <h2 className="text-2xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                <span>✅</span> Log a Chore
+              </h2>
+              <div className="space-y-4">
+                <select
+                  className="w-full bg-white/50 border-2 border-emerald-700/30 rounded-2xl px-4 py-3 text-emerald-900 focus:bg-white/70 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                  value={selectedArea}
+                  onChange={(e) => setSelectedArea(e.target.value)}
+                >
+                  <option value="">Select Area…</option>
+                  {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
+                </select>
+                <select
+                  className="w-full bg-white/50 border-2 border-emerald-700/30 rounded-2xl px-4 py-3 text-emerald-900 focus:bg-white/70 focus:border-emerald-600/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                  value={selectedTask}
+                  onChange={(e) => setSelectedTask(e.target.value)}
+                >
+                  <option value="">Select Task…</option>
+                  {TASKS.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <input
+                  placeholder="Notes (optional)"
+                  className="w-full bg-white/50 border-2 border-pink-300/50 rounded-2xl px-4 py-3 text-emerald-900 placeholder-emerald-700/50 focus:bg-white/70 focus:border-pink-400/60 focus:outline-none focus:ring-2 focus:ring-pink-400/40"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
+                <button
+                  className="w-full bg-gradient-to-r from-emerald-700 to-pink-400 hover:from-emerald-800 hover:to-pink-500 text-white font-bold rounded-2xl px-6 py-3 shadow-lg shadow-emerald-700/40 hover:shadow-emerald-700/60 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  type="submit"
+                  disabled={choresSaving}
+                >
+                  {choresSaving ? "✨ Saving…" : "✨ Mark Complete"}
+                </button>
+              </div>
+            </form>
 
-        {/* Chart section */}
-        <div className="glass-strong rounded-3xl p-6 shadow-2xl shadow-emerald-700/20 mb-6 hover:shadow-emerald-700/30">
-          <h2 className="text-2xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
-            <span className="text-2xl">📊</span>
-            Financial Overview
-          </h2>
-          <div className="h-80 bg-white/30 rounded-2xl p-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(13,77,62,0.2)" />
-                <XAxis
-                  dataKey="week"
-                  stroke="rgba(13,77,62,0.7)"
-                  style={{ fontSize: '12px', fill: '#0d4d3e' }}
-                />
-                <YAxis
-                  stroke="rgba(13,77,62,0.7)"
-                  style={{ fontSize: '12px', fill: '#0d4d3e' }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(250,247,242,0.95)',
-                    border: '2px solid rgba(244,194,194,0.5)',
-                    borderRadius: '12px',
-                    backdropFilter: 'blur(10px)',
-                  }}
-                  labelStyle={{ color: '#0d4d3e', fontWeight: 'bold' }}
-                />
-                <Legend
-                  wrapperStyle={{ paddingTop: '10px' }}
-                  iconType="circle"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="savings"
-                  stroke="#0d4d3e"
-                  strokeWidth={2}
-                  dot={{ fill: '#0d4d3e', r: 4 }}
-                  activeDot={{ r: 6, fill: '#166f59' }}
-                  name="Savings"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="creditCard"
-                  stroke="#f4c2c2"
-                  strokeWidth={2}
-                  dot={{ fill: '#f4c2c2', r: 4 }}
-                  activeDot={{ r: 6, fill: '#f8a0a0' }}
-                  name="Credit Card"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="netWorth"
-                  stroke="#166f59"
-                  strokeWidth={3}
-                  dot={{ fill: '#166f59', r: 5 }}
-                  activeDot={{ r: 7, fill: '#0d4d3e' }}
-                  name="Net Worth"
-                />
-
-        {/* Historical data */}
-        <div className="space-y-3">
-          <h2 className="text-2xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
-            <span className="text-2xl">📅</span>
-            History
-          </h2>
-          {rows
-            .slice()
-            .reverse()
-            .map((r) => (
-              <div
-                key={r.id}
-                className="glass rounded-2xl p-4 hover:bg-white/80 hover:scale-[1.01] group"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex-1">
-                    <div className="font-semibold text-emerald-900 text-lg mb-1">
-                      {new Date(r.week_of).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </div>
-                    <div className="flex gap-4 text-sm">
-                      <span className="text-emerald-700 font-medium">
-                        💰 ${centsToDollars(r.savings_cents)}
-                      </span>
-                      <span className="text-pink-600 font-medium">
-                        💳 ${centsToDollars(r.credit_card_cents)}
-                      </span>
-                      <span className="text-emerald-800 font-bold">
-                        📈 Net: ${centsToDollars(r.savings_cents - r.credit_card_cents)}
-                      </span>
+            {/* Chore history */}
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold text-emerald-800 mb-2 flex items-center gap-2">
+                <span>📋</span> Recent Completions
+              </h2>
+              {completions.map((c) => (
+                <div key={c.id} className="glass rounded-2xl p-4 hover:bg-white/80 hover:scale-[1.01] group">
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
+                      <div className="font-semibold text-emerald-900 text-lg mb-1">
+                        {c.area} — {c.task}
+                      </div>
+                      <div className="flex gap-4 text-sm">
+                        <span className="text-emerald-700">{formatTimeAgo(c.completed_at)}</span>
+                        {c.notes && <span className="text-pink-600 italic">{c.notes}</span>}
+                      </div>
                     </div>
                     <button
-                      className="text-red-400 hover:text-red-300 text-sm font-medium px-4 py-2 rounded-xl hover:bg-red-500/20 opacity-0 group-hover:opacity-100"
+                      className="text-rose-600 hover:text-rose-700 text-sm font-medium px-4 py-2 rounded-xl hover:bg-rose-100/60 opacity-0 group-hover:opacity-100"
                       onClick={() => deleteCompletion(c.id)}
                     >
                       🗑️ Delete
                     </button>
                   </div>
-                  <button
-                    className="text-rose-600 hover:text-rose-700 text-sm font-medium px-4 py-2 rounded-xl hover:bg-rose-100/60 opacity-0 group-hover:opacity-100"
-                    onClick={() => deleteRow(r.id)}
-                  >
-                    🗑️ Delete
-                  </button>
                 </div>
-              </div>
-            ))}
-          {rows.length === 0 && !loading && (
-            <div className="glass rounded-2xl p-8 text-center">
-              <p className="text-emerald-700/70 text-lg">No entries yet. Start tracking your finances! 🚀</p>
+              ))}
+              {completions.length === 0 && !choresLoading && (
+                <div className="glass rounded-2xl p-8 text-center">
+                  <p className="text-emerald-700/70 text-lg">No chores logged yet. Get cleaning! 🧹</p>
+                </div>
+              )}
             </div>
           </div>
         )}
+
       </div>
     </main>
   );
